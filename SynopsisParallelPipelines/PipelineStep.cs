@@ -28,7 +28,7 @@ namespace SynopsisParallelPipelines
             //FIX: handle finished
             while (!_input.IsAddingCompleted)
             {
-                var item = await Task.Run(()=> _input.Take());
+                var item = await Task.Run(() => _input.Take());
                 Console.WriteLine($"Received {item}, waiting for semaphore");
 
                 alltasks.Add(Task.Run(async () =>
@@ -38,7 +38,7 @@ namespace SynopsisParallelPipelines
                     var result = await _pipelineConstructor().Process(item);
                     Output.Add(result);
                     _semaphoreSlim.Release();
-                    
+
                     Console.WriteLine($"Processed {item}");
                 }));
             }

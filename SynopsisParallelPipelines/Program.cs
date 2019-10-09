@@ -25,11 +25,10 @@ namespace SynopsisParallelPipelines
 
             await Task.Delay(500);
 
-            for (int i = 0; i >= 0; i++)
+            for (var i = 0; i >= 0; i++)
             {
                 await Task.Delay(500);
                 input.Add(i.ToString());
-                
             }
 
             await Task.WhenAll(alltasks);
