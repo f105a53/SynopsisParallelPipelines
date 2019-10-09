@@ -9,12 +9,15 @@ namespace SynopsisParallelPipelines
     public class PipelineStep<TInput, TOutput>
     {
         private readonly BlockingCollection<TInput> _input;
+        private readonly string _name;
         private readonly Func<IPipeline<TInput, TOutput>> _pipelineConstructor;
         private readonly SemaphoreSlim _semaphoreSlim;
 
-        public PipelineStep(BlockingCollection<TInput> input, Func<IPipeline<TInput, TOutput>> pipelineConstructor,
+        public PipelineStep(string name, BlockingCollection<TInput> input,
+            Func<IPipeline<TInput, TOutput>> pipelineConstructor,
             byte concurrency)
         {
+            _name = name;
             _input = input;
             _pipelineConstructor = pipelineConstructor;
             _semaphoreSlim = new SemaphoreSlim(concurrency, concurrency);
@@ -25,21 +28,22 @@ namespace SynopsisParallelPipelines
         public async Task Process()
         {
             var alltasks = new List<Task>();
-            //FIX: handle finished
+
+
             while (!_input.IsAddingCompleted)
             {
                 var item = await Task.Run(() => _input.Take());
-                Console.WriteLine($"Received {item}, waiting for semaphore");
+                Console.WriteLine($"{_name}: Received {item}, waiting for semaphore");
 
                 alltasks.Add(Task.Run(async () =>
                 {
                     await _semaphoreSlim.WaitAsync();
-                    Console.WriteLine($"Processing {item}");
+                    Console.WriteLine($"{_name}: Processing {item}");
                     var result = await _pipelineConstructor().Process(item);
                     Output.Add(result);
                     _semaphoreSlim.Release();
 
-                    Console.WriteLine($"Processed {item}");
+                    Console.WriteLine($"{_name}: Processed {item}");
                 }));
             }
 
