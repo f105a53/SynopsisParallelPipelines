@@ -33,17 +33,17 @@ namespace SynopsisParallelPipelines
             while (!_input.IsAddingCompleted)
             {
                 var item = await Task.Run(() => _input.Take());
-                Console.WriteLine($"{_name}: Received {item}, waiting for semaphore");
+                //Console.WriteLine($"{_name}: Received {item}, waiting for semaphore");
 
                 alltasks.Add(Task.Run(async () =>
                 {
                     await _semaphoreSlim.WaitAsync();
-                    Console.WriteLine($"{_name}: Processing {item}");
+                    Console.WriteLine($"{DateTime.Now.Ticks}\t{_name}:\tStart\t{item}");
                     var result = await _pipelineConstructor().Process(item);
                     Output.Add(result);
                     _semaphoreSlim.Release();
 
-                    Console.WriteLine($"{_name}: Processed {item}");
+                    Console.WriteLine($"{DateTime.Now.Ticks}\t{_name}:\tFinish\t{item}");
                 }));
             }
 

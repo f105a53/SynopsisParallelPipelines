@@ -65,20 +65,11 @@ namespace SynopsisParallelPipelines
 
         private static async Task ProcessImage()
         {
-            /*
-            using (var imagee = Image.Load("../../../Images/image1.jpg"))
-            {
-                imagee.Mutate(x => x
-                     .Resize(imagee.Width / 2, imagee.Height / 2)
-                     .Grayscale());
-                imagee.Save("../../../Images/image1Edited.jpg");
-            }*/
-
             var alltasks = new List<Task>();
             var input = new BlockingCollection<ImageInfo>();
-            var step1 = new PipelineStep<ImageInfo, ImageInfo>("step1", input, () => new LoadImageStep(), 2);
-            var step2 = new PipelineStep<ImageInfo, ImageInfo>("step2", step1.Output, () => new ResizeImageStep(),2);
-            var step3 = new PipelineStep<ImageInfo, ImageInfo>("step3", step2.Output, () => new SaveImageStep(), 2);
+            var step1 = new PipelineStep<ImageInfo, ImageInfo>("stepLoad", input, () => new LoadImageStep(), 1);
+            var step2 = new PipelineStep<ImageInfo, ImageInfo>("stepResize", step1.Output, () => new ResizeImageStep(),2);
+            var step3 = new PipelineStep<ImageInfo, ImageInfo>("stepSave", step2.Output, () => new SaveImageStep(), 1);
             alltasks.Add(step1.Process());
             alltasks.Add(step2.Process());
             alltasks.Add(step3.Process());
@@ -87,10 +78,10 @@ namespace SynopsisParallelPipelines
                 while (step3.Output.IsAddingCompleted == false)
                 {
                     var take = step3.Output.Take();
-                    Console.WriteLine($"Output. {take.Name} was saved: {take.ImageSaved}");
+                    //Console.WriteLine($"Output: {take}");
                 }
             }));
-            Console.WriteLine("Setup finished");
+            Console.WriteLine("Setup finished, starting processing");
 
             var images = Crawl(new DirectoryInfo(@"C:\Users\Martynas\Desktop\pic")).Select(path => new ImageInfo {Path = path.FullName, Name = path.Name}).ToList();
 
@@ -99,7 +90,7 @@ namespace SynopsisParallelPipelines
                 input.Add(image);
             }
 
-            input.CompleteAdding();
+            //input.CompleteAdding();
             await Task.WhenAll(alltasks);
         }
     }
