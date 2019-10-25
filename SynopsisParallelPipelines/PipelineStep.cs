@@ -39,11 +39,21 @@ namespace SynopsisParallelPipelines
                 {
                     await _semaphoreSlim.WaitAsync();
                     Console.WriteLine($"{DateTime.Now.Ticks}\t{_name}:\tStart\t{item}");
-                    var result = await _pipelineConstructor().Process(item);
-                    Output.Add(result);
-                    _semaphoreSlim.Release();
-
-                    Console.WriteLine($"{DateTime.Now.Ticks}\t{_name}:\tFinish\t{item}");
+                    try
+                    {
+                        var result = await _pipelineConstructor().Process(item);
+                        Output.Add(result);
+                        Console.WriteLine($"{DateTime.Now.Ticks}\t{_name}:\tFinish\t{item}");
+                    }
+                    catch (Exception e)
+                    {
+                        System.Console.WriteLine($"{DateTime.Now.Ticks}\t{_name}:\tError\t{item}\n\n{e}\n\n");
+                    }
+                    finally
+                    {
+                        _semaphoreSlim.Release();
+                    }
+                    
                 }));
             }
 
