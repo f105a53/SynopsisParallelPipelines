@@ -7,9 +7,7 @@ namespace SynopsisParallelPipelines
     {
         public async Task<ImageInfo> Process(ImageInfo input)
         {
-            await Task.Run(() =>
-            input.ImageResized.Save($"../../../Images/{input.Name} Edited.jpg")
-            );
+            await Task.Run(() => input.ImageResized.Save($"{input.Name}"));
             input.ImageSaved = true;
             return input;
         }

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -46,6 +47,22 @@ namespace SynopsisParallelPipelines
             await Task.WhenAll(alltasks);
         }
 
+        private static IEnumerable<FileInfo> Crawl(DirectoryInfo dir)
+        {
+            foreach (var file in dir.EnumerateFiles())
+            {
+               yield return file;
+            }
+
+            foreach (var subdir in dir.EnumerateDirectories())
+            {
+                foreach (var file in Crawl(subdir))
+                {
+                    yield return file;
+                }
+            }
+        }
+
         private static async Task ProcessImage()
         {
             /*
@@ -75,11 +92,14 @@ namespace SynopsisParallelPipelines
             }));
             Console.WriteLine("Setup finished");
 
-            ImageInfo image = new ImageInfo { Path = "../../../Images/image1.jpg", Name="Image 1" };
-            input.Add(image);
-            image = new ImageInfo { Path = "../../../Images/image2.jpg", Name = "Image 2" };
-            input.Add(image);
+            var images = Crawl(new DirectoryInfo(@"C:\Users\Martynas\Desktop\pic")).Select(path => new ImageInfo {Path = path.FullName, Name = path.Name}).ToList();
 
+            foreach (var image in images)
+            {
+                input.Add(image);
+            }
+
+            input.CompleteAdding();
             await Task.WhenAll(alltasks);
         }
     }

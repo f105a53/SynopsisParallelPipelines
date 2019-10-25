@@ -12,5 +12,9 @@ namespace SynopsisParallelPipelines
         public Image ImageNotResized { set; get; }
         public Image ImageResized { set; get; }
         public bool ImageSaved { set; get; }
+        public override string ToString()
+        {
+            return this.Name;
+        }
 }
 }
