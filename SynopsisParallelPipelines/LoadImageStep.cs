@@ -1,22 +1,15 @@
 ﻿using SixLabors.ImageSharp;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SynopsisParallelPipelines
 {
-    public class LoadImageStep<T> : IPipeline<T, T>
+    public class LoadImageStep : IPipeline<ImageInfo, ImageInfo>
     {
-        public async Task<T> Process(T input)
+        public async Task<ImageInfo> Process(ImageInfo input)
         {
-            ImageInfo imageInfo = input as ImageInfo;
-            var image = Image.Load(imageInfo.Path);
-
-            imageInfo.ImageNotResized = image;
-
-
-            return (T) Convert.ChangeType(imageInfo, typeof(T));
+            var image = await Task.Run(() => Image.Load(input.Path));
+            input.ImageNotResized = image;
+            return input;
         }
     }
 }

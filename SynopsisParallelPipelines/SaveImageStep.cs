@@ -1,23 +1,17 @@
 ﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SynopsisParallelPipelines
 {
-    class SaveImageStep<T> : IPipeline<T, T>
+    class SaveImageStep : IPipeline<ImageInfo,ImageInfo>
     {
-        public async Task<T> Process(T input)
+        public async Task<ImageInfo> Process(ImageInfo input)
         {
-            ImageInfo imageInfo = input as ImageInfo;
-
-            imageInfo.ImageResized.Save($"../../../Images/{imageInfo.Name} Edited.jpg");
-            imageInfo.ImageSaved = true;
-
-            return (T)Convert.ChangeType(imageInfo, typeof(T));
+            await Task.Run(() =>
+            input.ImageResized.Save($"../../../Images/{input.Name} Edited.jpg")
+            );
+            input.ImageSaved = true;
+            return input;
         }
     }
 }

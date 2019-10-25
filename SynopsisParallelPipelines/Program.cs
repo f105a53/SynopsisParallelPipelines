@@ -15,7 +15,11 @@ namespace SynopsisParallelPipelines
         private static async Task Main(string[] args)
         {
             await ProcessImage();
-          /*  var alltasks = new List<Task>();
+        }
+
+        private static async Task TestExample()
+        {
+            var alltasks = new List<Task>();
             var input = new BlockingCollection<string>();
             var step1 = new PipelineStep<string, string>("step1", input, () => new DelayReturnPipeline<string>(), 2);
             var step2 = new PipelineStep<string, string>("step2", step1.Output, () => new DelayReturnPipeline<string>(),
@@ -39,7 +43,7 @@ namespace SynopsisParallelPipelines
                 input.Add(i.ToString());
             }
 
-            await Task.WhenAll(alltasks);*/
+            await Task.WhenAll(alltasks);
         }
 
         private static async Task ProcessImage()
@@ -55,9 +59,9 @@ namespace SynopsisParallelPipelines
 
             var alltasks = new List<Task>();
             var input = new BlockingCollection<ImageInfo>();
-            var step1 = new PipelineStep<ImageInfo, ImageInfo>("step1", input, () => new LoadImageStep<ImageInfo>(), 2);
-            var step2 = new PipelineStep<ImageInfo, ImageInfo>("step2", step1.Output, () => new ResizeImageStep<ImageInfo>(),2);
-            var step3 = new PipelineStep<ImageInfo, ImageInfo>("step3", step2.Output, () => new SaveImageStep<ImageInfo>(), 2);
+            var step1 = new PipelineStep<ImageInfo, ImageInfo>("step1", input, () => new LoadImageStep(), 2);
+            var step2 = new PipelineStep<ImageInfo, ImageInfo>("step2", step1.Output, () => new ResizeImageStep(),2);
+            var step3 = new PipelineStep<ImageInfo, ImageInfo>("step3", step2.Output, () => new SaveImageStep(), 2);
             alltasks.Add(step1.Process());
             alltasks.Add(step2.Process());
             alltasks.Add(step3.Process());
