@@ -93,5 +93,21 @@ namespace SynopsisParallelPipelines
             //input.CompleteAdding();
             await Task.WhenAll(alltasks);
         }
+
+        private static void ProcessImageSequential()
+        {
+            var imagesInfo = Crawl(new DirectoryInfo(@"C:\Users\Martynas\Desktop\pic")).Select(path => new ImageInfo { Path = path.FullName, Name = path.Name }).ToList();
+
+            foreach (var imageInfo in imagesInfo)
+            {
+                using (Image image = Image.Load(imageInfo.Path))
+                {
+                    image.Mutate(x => x
+                         .Resize(image.Width / 2, image.Height / 2)
+                         .Grayscale());
+                    image.Save($"{imageInfo.Name}");
+                }
+            }
+        }
     }
 }
